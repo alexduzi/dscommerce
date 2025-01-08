@@ -103,7 +103,7 @@ public class Product implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(description, id, imgUrl, name, price);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -115,8 +115,6 @@ public class Product implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Product other = (Product) obj;
-		return Objects.equals(description, other.description) && Objects.equals(id, other.id)
-				&& Objects.equals(imgUrl, other.imgUrl) && Objects.equals(name, other.name)
-				&& Objects.equals(price, other.price);
+		return Objects.equals(id, other.id);
 	}
 }

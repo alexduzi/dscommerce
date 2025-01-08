@@ -65,7 +65,7 @@ public class Payment implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, moment, order);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -77,7 +77,6 @@ public class Payment implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Payment other = (Payment) obj;
-		return Objects.equals(id, other.id) && Objects.equals(moment, other.moment)
-				&& Objects.equals(order, other.order);
+		return Objects.equals(id, other.id);
 	}
 }
