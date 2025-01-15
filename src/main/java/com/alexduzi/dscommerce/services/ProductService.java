@@ -42,11 +42,26 @@ public class ProductService {
         return convertToDto(product);
     }
 
+    @Transactional
+    public ProductDTO update(Long id, ProductDTO dto) {
+        Product product = repository.getReferenceById(id);
+        copyDtoToEntity(dto, product);
+        product = repository.save(product);
+        return convertToDto(product);
+    }
+
     private ProductDTO convertToDto(Product product) {
         return modelMapper.map(product, ProductDTO.class);
     }
 
     private Product convertToEntity(ProductDTO productDTO) {
         return modelMapper.map(productDTO, Product.class);
+    }
+
+    private void copyDtoToEntity(ProductDTO dto, Product entity) {
+        entity.setDescription(dto.getDescription());
+        entity.setName(dto.getName());
+        entity.setPrice(dto.getPrice());
+        entity.setImgUrl(dto.getImgUrl());
     }
 }
