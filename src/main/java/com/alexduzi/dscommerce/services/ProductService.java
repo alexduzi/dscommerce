@@ -15,27 +15,38 @@ import java.util.List;
 @Service
 public class ProductService {
 
-	@Autowired
-	private ProductRepository repository;
+    @Autowired
+    private ProductRepository repository;
 
-	@Autowired
-	private ModelMapper modelMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
-	@Transactional(readOnly = true)
-	public ProductDTO findById(Long id) {
-		Product product = repository.findById(id).orElseThrow();
+    @Transactional(readOnly = true)
+    public ProductDTO findById(Long id) {
+        Product product = repository.findById(id).orElseThrow();
 
-		return convertToDto(product);
-	}
+        return convertToDto(product);
+    }
 
-	@Transactional(readOnly = true)
-	public Page<ProductDTO> findAll(Pageable pageable) {
-		Page<Product> product = repository.findAll(pageable);
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findAll(Pageable pageable) {
+        Page<Product> product = repository.findAll(pageable);
 
-		return product.map(this::convertToDto);
-	}
+        return product.map(this::convertToDto);
+    }
 
-	private ProductDTO convertToDto(Product product) {
+    @Transactional
+    public ProductDTO insert(ProductDTO dto) {
+        Product product = convertToEntity(dto);
+        product = repository.save(product);
+        return convertToDto(product);
+    }
+
+    private ProductDTO convertToDto(Product product) {
         return modelMapper.map(product, ProductDTO.class);
-	}
+    }
+
+    private Product convertToEntity(ProductDTO productDTO) {
+        return modelMapper.map(productDTO, Product.class);
+    }
 }
