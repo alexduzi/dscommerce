@@ -10,8 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 public class ProductService {
 
@@ -48,6 +46,11 @@ public class ProductService {
         copyDtoToEntity(dto, product);
         product = repository.save(product);
         return convertToDto(product);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
     }
 
     private ProductDTO convertToDto(Product product) {
