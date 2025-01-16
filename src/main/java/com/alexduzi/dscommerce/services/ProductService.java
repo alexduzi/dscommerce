@@ -3,12 +3,16 @@ package com.alexduzi.dscommerce.services;
 import com.alexduzi.dscommerce.dto.ProductDTO;
 import com.alexduzi.dscommerce.entities.Product;
 import com.alexduzi.dscommerce.repositories.ProductRepository;
+import com.alexduzi.dscommerce.services.exceptions.DatabaseException;
 import com.alexduzi.dscommerce.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -43,15 +47,26 @@ public class ProductService {
 
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto) {
-        Product product = repository.getReferenceById(id);
-        copyDtoToEntity(dto, product);
-        product = repository.save(product);
-        return convertToDto(product);
+        try {
+            Product product = repository.getReferenceById(id);
+            copyDtoToEntity(dto, product);
+            product = repository.save(product);
+            return convertToDto(product);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-        repository.deleteById(id);
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Falha de integridade referencial");
+        }
     }
 
     private ProductDTO convertToDto(Product product) {
