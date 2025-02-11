@@ -1,4 +1,4 @@
-package com.alexduzi.dscommerce.dto;
+package com.alexduzi.dscommerce.projections;
 
 public interface UserDetailsProjection {
     String getUsername();

@@ -1,6 +1,6 @@
 package com.alexduzi.dscommerce.repositories;
 
-import com.alexduzi.dscommerce.dto.UserDetailsProjection;
+import com.alexduzi.dscommerce.projections.UserDetailsProjection;
 import com.alexduzi.dscommerce.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             	WHERE tb_user.email = :email
             """)
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
+
+    User findByEmail(String email);
 }
