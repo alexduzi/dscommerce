@@ -1,6 +1,9 @@
 package com.alexduzi.dscommerce.services;
 
+import com.alexduzi.dscommerce.dto.CategoryDTO;
 import com.alexduzi.dscommerce.dto.ProductDTO;
+import com.alexduzi.dscommerce.dto.ProductMinDTO;
+import com.alexduzi.dscommerce.entities.Category;
 import com.alexduzi.dscommerce.entities.Product;
 import com.alexduzi.dscommerce.repositories.ProductRepository;
 import com.alexduzi.dscommerce.services.exceptions.DatabaseException;
@@ -32,10 +35,10 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> findAll(String name, Pageable pageable) {
+    public Page<ProductMinDTO> findAll(String name, Pageable pageable) {
         Page<Product> product = repository.searchByName(name, pageable);
 
-        return product.map(this::convertToDto);
+        return product.map(this::convertToMinDto);
     }
 
     @Transactional
@@ -70,11 +73,19 @@ public class ProductService {
     }
 
     private ProductDTO convertToDto(Product product) {
-        return modelMapper.map(product, ProductDTO.class);
+        ProductDTO productDto = modelMapper.map(product, ProductDTO.class);
+        productDto.getCategories().addAll(product.getCategories().stream().map(x -> modelMapper.map(x, CategoryDTO.class)).toList());
+        return productDto;
+    }
+
+    private ProductMinDTO convertToMinDto(Product product) {
+        return modelMapper.map(product, ProductMinDTO.class);
     }
 
     private Product convertToEntity(ProductDTO productDTO) {
-        return modelMapper.map(productDTO, Product.class);
+        Product product =  modelMapper.map(productDTO, Product.class);
+        product.getCategories().addAll(productDTO.getCategories().stream().map(x -> modelMapper.map(x, Category.class)).toList());
+        return product;
     }
 
     private void copyDtoToEntity(ProductDTO dto, Product entity) {
@@ -82,5 +93,11 @@ public class ProductService {
         entity.setName(dto.getName());
         entity.setPrice(dto.getPrice());
         entity.setImgUrl(dto.getImgUrl());
+        entity.getCategories().clear();
+        for (CategoryDTO catDto : dto.getCategories()) {
+            Category cat = new Category();
+            cat.setId(catDto.getId());
+            entity.getCategories().add(cat);
+        }
     }
 }
