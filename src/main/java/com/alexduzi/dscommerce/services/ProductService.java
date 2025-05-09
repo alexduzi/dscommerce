@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class ProductService {
@@ -69,6 +70,15 @@ public class ProductService {
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha de integridade referencial");
+        }
+    }
+
+    protected void validateData(ProductDTO productDto) {
+        if (productDto.getName() != null && productDto.getName().isBlank()) {
+            throw new IllegalArgumentException("Field name cannot be blank");
+        }
+        if (productDto.getDescription() != null && productDto.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Field name cannot be blank");
         }
     }
 
