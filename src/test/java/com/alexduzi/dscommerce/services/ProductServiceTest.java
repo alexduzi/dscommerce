@@ -13,8 +13,7 @@ import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -63,5 +62,25 @@ class ProductServiceTest {
         assertEquals(product.getId(), result.getId());
         assertEquals(product.getDescription(), result.getDescription());
         assertEquals(product.getPrice(), result.getPrice());
+    }
+
+    @Test
+    void insertShouldReturnIllegalArgumentExceptionWhenProductNameIsBlank() {
+        productDTO.setName(null);
+
+        ProductService serviceSpy = spy(productService);
+        doThrow(IllegalArgumentException.class).when(serviceSpy).validateData(productDTO);
+
+        assertThrows(IllegalArgumentException.class, () -> serviceSpy.insert(productDTO));
+    }
+
+    @Test
+    void insertShouldReturnIllegalArgumentExceptionWhenProductPriceIsNegative() {
+        productDTO.setPrice(-5.0);
+
+        ProductService serviceSpy = spy(productService);
+        doThrow(IllegalArgumentException.class).when(serviceSpy).validateData(productDTO);
+
+        assertThrows(IllegalArgumentException.class, () -> serviceSpy.insert(productDTO));
     }
 }

@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 public class ProductService {
@@ -44,6 +43,7 @@ public class ProductService {
 
     @Transactional
     public ProductDTO insert(ProductDTO dto) {
+        validateData(dto);
         Product product = convertToEntity(dto);
         product = repository.save(product);
         return convertToDto(product);
@@ -52,6 +52,7 @@ public class ProductService {
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto) {
         try {
+            validateData(dto);
             Product product = repository.getReferenceById(id);
             copyDtoToEntity(dto, product);
             product = repository.save(product);
@@ -74,11 +75,11 @@ public class ProductService {
     }
 
     protected void validateData(ProductDTO productDto) {
-        if (productDto.getName() != null && productDto.getName().isBlank()) {
+        if (productDto.getName() == null || productDto.getName().isBlank()) {
             throw new IllegalArgumentException("Field name cannot be blank");
         }
-        if (productDto.getDescription() != null && productDto.getDescription().isBlank()) {
-            throw new IllegalArgumentException("Field name cannot be blank");
+        if (productDto.getPrice() == null || productDto.getPrice() <= 0) {
+            throw new IllegalArgumentException("Field price cannot be zero or negative");
         }
     }
 
@@ -93,7 +94,7 @@ public class ProductService {
     }
 
     private Product convertToEntity(ProductDTO productDTO) {
-        Product product =  modelMapper.map(productDTO, Product.class);
+        Product product = modelMapper.map(productDTO, Product.class);
         product.getCategories().addAll(productDTO.getCategories().stream().map(x -> modelMapper.map(x, Category.class)).toList());
         return product;
     }
