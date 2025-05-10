@@ -4,6 +4,7 @@ import com.alexduzi.dscommerce.dto.ProductDTO;
 import com.alexduzi.dscommerce.entities.Category;
 import com.alexduzi.dscommerce.entities.Product;
 import com.alexduzi.dscommerce.repositories.ProductRepository;
+import com.alexduzi.dscommerce.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,5 +83,47 @@ class ProductServiceTest {
         doThrow(IllegalArgumentException.class).when(serviceSpy).validateData(productDTO);
 
         assertThrows(IllegalArgumentException.class, () -> serviceSpy.insert(productDTO));
+    }
+
+    @Test
+    void updateShouldReturnProductDTOWhenProductExists() {
+        ProductService serviceSpy = spy(productService);
+        doNothing().when(serviceSpy).validateData(productDTO);
+
+        ProductDTO result = serviceSpy.update(existingId, productDTO);
+
+        assertNotNull(result);
+        assertEquals(product.getId(), result.getId());
+        assertEquals(product.getName(), result.getName());
+        assertEquals(product.getDescription(), result.getDescription());
+        assertEquals(product.getPrice(), result.getPrice());
+    }
+
+    @Test
+    void updateShouldReturnIllegalArgumentExceptionWhenProductExistsAndNameIsBlank() {
+        productDTO.setName(null);
+
+        ProductService serviceSpy = spy(productService);
+        doThrow(IllegalArgumentException.class).when(serviceSpy).validateData(productDTO);
+
+        assertThrows(IllegalArgumentException.class, () -> serviceSpy.update(existingId, productDTO));
+    }
+
+    @Test
+    void updateShouldReturnIllegalArgumentExceptionWhenProductExistsAndPriceIsNegative() {
+        productDTO.setPrice(-5.0);
+
+        ProductService serviceSpy = spy(productService);
+        doThrow(IllegalArgumentException.class).when(serviceSpy).validateData(productDTO);
+
+        assertThrows(IllegalArgumentException.class, () -> serviceSpy.update(existingId, productDTO));
+    }
+
+    @Test
+    void updateShouldReturnIllegalArgumentExceptionWhenProductDontExists() {
+        ProductService serviceSpy = spy(productService);
+        doNothing().when(serviceSpy).validateData(productDTO);
+
+        assertThrows(ResourceNotFoundException.class, () -> serviceSpy.update(nonExistingId, productDTO));
     }
 }
