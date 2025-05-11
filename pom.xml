@@ -106,12 +106,12 @@
                 <version>0.8.7</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/devsuperior/dscommerce/DscommerceApplication.class</exclude>
-                        <exclude>com/devsuperior/dscommerce/config/**</exclude>
-                        <exclude>com/devsuperior/dscommerce/entities/**</exclude>
-                        <exclude>com/devsuperior/dscommerce/dto/**</exclude>
-                        <exclude>com/devsuperior/dscommerce/controllers/handlers/**</exclude>
-                        <exclude>com/devsuperior/dscommerce/services/exceptions/**</exclude>
+                        <exclude>com/alexduzi/dscommerce/DscommerceApplication.class</exclude>
+                        <exclude>com/alexduzi/dscommerce/config/**</exclude>
+                        <exclude>com/alexduzi/dscommerce/entities/**</exclude>
+                        <exclude>com/alexduzi/dscommerce/dto/**</exclude>
+                        <exclude>com/alexduzi/dscommerce/controllers/handlers/**</exclude>
+                        <exclude>com/alexduzi/dscommerce/services/exceptions/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
