@@ -1,6 +1,7 @@
 package com.alexduzi.dscommerce.services;
 
 import com.alexduzi.dscommerce.dto.ProductDTO;
+import com.alexduzi.dscommerce.dto.ProductMinDTO;
 import com.alexduzi.dscommerce.entities.Category;
 import com.alexduzi.dscommerce.entities.Product;
 import com.alexduzi.dscommerce.repositories.ProductRepository;
@@ -12,7 +13,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +42,9 @@ class ProductServiceTest {
     private Long existingId;
     private Long nonExistingId;
 
+    private Product pageProduct;
+    private PageImpl<Product> pageResult;
+
     @BeforeEach
     void setUp() throws Exception {
         existingId = 1L;
@@ -44,11 +54,16 @@ class ProductServiceTest {
         product.getCategories().add(new Category(1L, "Category 1"));
         productDTO = new ProductDTO(product);
 
+        pageProduct = new Product(3L, "Playstation 5", "video game", 3000.0, "url");
+        pageResult = new PageImpl<>(List.of(pageProduct));
+
         when(modelMapper.map(productDTO, Product.class)).thenReturn(product);
         when(modelMapper.map(product, ProductDTO.class)).thenReturn(productDTO);
         when(repository.save(any())).thenReturn(product);
         when(repository.getReferenceById(existingId)).thenReturn(product);
         when(repository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
+
+        when(repository.searchByName(any(), (Pageable) any())).thenReturn(pageResult);
     }
 
     @Test
@@ -125,5 +140,18 @@ class ProductServiceTest {
         doNothing().when(serviceSpy).validateData(productDTO);
 
         assertThrows(ResourceNotFoundException.class, () -> serviceSpy.update(nonExistingId, productDTO));
+    }
+
+    @Test
+    void findAllShouldReturnPagedProductMinDTO() {
+        Pageable pageable = PageRequest.of(0, 12);
+        String name = "Playstation 5";
+
+        ProductService serviceSpy = spy(productService);
+
+        Page<ProductMinDTO> result = serviceSpy.findAll(name, pageable);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
     }
 }
