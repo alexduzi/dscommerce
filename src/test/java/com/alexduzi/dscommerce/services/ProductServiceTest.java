@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,6 +22,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+import static com.alexduzi.dscommerce.util.ProductFactory.createProduct;
+import static com.alexduzi.dscommerce.util.ProductFactory.createProductDTO;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,7 +37,7 @@ class ProductServiceTest {
     @Mock
     private ProductRepository repository;
 
-    @Mock
+    @Spy
     private ModelMapper modelMapper;
 
     private Product product;
@@ -153,5 +156,21 @@ class ProductServiceTest {
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
+    }
+
+    @Test
+    void updateShouldReturnProductUpdated() {
+        Long prodId = 10L;
+        Product productUpdateRefId = createProduct(prodId, "Playstation 5", "video game", 2000.0, "url");
+        Product productUpdated = createProduct(prodId, "Playstation 5 updated", "video game", 2000.0, "url");
+        ProductDTO productUpdateDTO = createProductDTO(productUpdated);
+
+        when(repository.getReferenceById(prodId)).thenReturn(productUpdateRefId);
+        when(repository.save(any())).thenReturn(productUpdated);
+
+        ProductDTO result = productService.update(prodId, productUpdateDTO);
+
+        assertNotNull(result);
+        assertEquals(productUpdateDTO.getName(), result.getName());
     }
 }
