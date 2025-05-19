@@ -11,7 +11,7 @@ public class ProductFactory {
     }
 
     public static Product createProduct(Long id, String name, String description, double price, String url) {
-        Product product = new Product(5L, "Playstation", "video game", 2000.0, "url");
+        Product product = new Product(id, name, description, price, url);
         product.getCategories().add(new Category(1L, "Category 1"));
         return product;
     }
