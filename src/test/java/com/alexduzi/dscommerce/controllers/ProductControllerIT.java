@@ -38,19 +38,15 @@ class ProductControllerIT {
     private String adminAccessToken;
     private String clientAccessToken;
     private ProductDTO productDTO;
-    private String adminUsername;
-    private String adminPassword;
-    private String clientUsername;
-    private String clientPassword;
 
     @BeforeEach
     void setUp() throws Exception {
         productName = "Macbook";
 
-        adminUsername = "alex@gmail.com";
-        adminPassword = "123456";
-        clientUsername = "maria@gmail.com";
-        clientPassword = "123456";
+        String adminUsername = "alex@gmail.com";
+        String adminPassword = "123456";
+        String clientUsername = "maria@gmail.com";
+        String clientPassword = "123456";
 
         adminAccessToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, adminPassword);
 
