@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.alexduzi.dscommerce.util.ProductFactory.createProduct;
 import static com.alexduzi.dscommerce.util.ProductFactory.createProductDTO;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -220,6 +221,69 @@ class ProductControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
 
+        result.andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deleteShouldReturnNoContentWhenProductIsDeleted() throws Exception {
+        Long productId = 5L;
+
+        ResultActions result = mockMvc.perform(delete("/products/{id}", productId)
+                .header("Authorization", "Bearer " + adminAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteShouldReturnNotFoundWhenProductDoesNotExists() throws Exception {
+        Long productId = 100L;
+
+        ResultActions result = mockMvc.perform(delete("/products/{id}", productId)
+                .header("Authorization", "Bearer " + adminAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteShouldReturnBadRequestWhenProductHaveDependentRelations() throws Exception {
+        Long productId = 3L;
+
+        ResultActions result = mockMvc.perform(delete("/products/{id}", productId)
+                .header("Authorization", "Bearer " + adminAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // spring data jpa does not throw DataIntegrityViolationException anymore
+        result.andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteShouldReturnForbiddenWhenUserIsClient() throws Exception {
+        Long productId = 5L;
+
+        ResultActions result = mockMvc.perform(delete("/products/{id}", productId)
+                .header("Authorization", "Bearer " + clientAccessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // spring data jpa does not throw DataIntegrityViolationException anymore
+        result.andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteShouldReturnUnauthorizedWhenUserIsNotLogged() throws Exception {
+        Long productId = 5L;
+
+        ResultActions result = mockMvc.perform(delete("/products/{id}", productId)
+                .header("Authorization", "Bearer ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // spring data jpa does not throw DataIntegrityViolationException anymore
         result.andExpect(status().isUnauthorized());
     }
 }
